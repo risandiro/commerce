@@ -1,0 +1,46 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+    <div style="padding: 50px;">
+        <h3 class="mb-4">{{ listing.title }} ({{ listing.year }})</h3>
+
+        <div class="row align-items-start" style="margin-top: 50px;">
+
+            <!-- Left: Image + Watchlist -->
+            <div class="col-md-5 d-flex align-items-start gap-2">
+                <img src="{{ listing.img_url }}" alt="{{ listing.title }}" class="img-fluid" 
+                    style="height: 300px; object-fit: cover;">
+                
+                    <!-- Watchlist tooltip upon hover -->
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'toggle_watchlist' listing.id %}" style="margin-top: -6px;" data-bs-toggle="tooltip" data-bs-placement="top" 
+                            title="{% if is_in_watchlist %}Remove from Watchlist{% else %}Add to Watchlist{% endif %}">
+                    {% else %}
+                        <a style="margin-top: -6px; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="top" 
+                            title="Must be logged in">
+                    {% endif %}
+
+                            <!-- Watchlist icon toggle -->
+                            {% if is_in_watchlist %}
+                                <i class="bi bi-heart-fill text-danger watchlist-icon"></i>
+                            {% else %}
+                                <i class="bi bi-heart watchlist-icon"></i>
+                            {% endif %}
+                        </a>
+            </div>
+        
+
+            <!-- Right: Description aligned with image -->
+            <div class="col-md-7">
+                <h3>Description</h3>
+                <div style="width: 50%;">
+                    <p>{{ listing.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
