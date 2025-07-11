@@ -41,6 +41,60 @@
             </div>
         </div>
     </div>
+    
 
+
+    <div style="padding: 50px; margin-top: -100px">
+        <div class="row align-items-start mt-5">
+            <!-- Left: Info -->
+            <div class="col-md-5">
+                <p class="mb-1">Created at: {{ listing.timestamp }}</p>
+                <p class="mb-1">Starting price: ${{ listing.starting_bid }}</p>
+                <p class="mb-1">Listed by: <a href="google.com">{{ listing.creator }}</a></p>
+            </div>
+
+            <!-- Right: Bidding -->
+            <div class="col-md-7" style="width: 50%;">
+                <p class="mb-1">
+                    Status: 
+                    {% if listing.active %}
+                        <strong><span class="text-success">Active</span></strong>
+                    {% else %}
+                        <strong><span class="text-danger">Closed</span></strong>
+                    {% endif %}
+                </p>
+                {% if listing.active %}
+                    <p class="mb-1">Current price: <strong>${{ listing.current_price }}</strong></p>
+                    <p class="mb-1">Highest bidder: {{ listing.highest_bidder}}</p>
+                    <br>
+                    <form>
+                        {{ form }}
+                        <button type="submit" class="btn btn-primary btn-sm" style="margin-top: -5px;">Place a bid</button>                    </form>
+                {% else %}
+                    <p class="mb-1">Hammer price: <strong>${{ listing.current_price }}</strong></p>
+                    <p class="mb-1">Winner of the auction: <a href="google.com">{{ listing.highest_bidder }}</a></p>
+                    {% if listing.highest_bidder == user %} 
+                        Congratulations! You are the winner of this auction!
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div style="padding: 50px;">
+        <h4>Bid history:</h4>
+        {% for bid in listing.bid_history %}
+            <a href="google.com">{{ bid.bidder }}</a> made a bid at ${{ bid.amount }} at {{ bid.timestamp|timesince }} ago
+            <br>
+        {% endfor %}
+    </div>
+        
+    <hr>        
+
+    <div style="padding-left: 50px; padding-top: 25px;">
+        {% if listing.active and listing.creator == user %}
+            <a href="{% url 'auction_close' listing.id %}" class="btn btn-primary btn-sm">Close the auction</a>
+        {% endif %}
+    </div>
 
 {% endblock %}

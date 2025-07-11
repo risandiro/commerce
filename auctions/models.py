@@ -3,8 +3,8 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 import datetime
+from django.utils import timezone
 
-current_year = datetime.datetime.now().year
 
 class User(AbstractUser):
     pass
@@ -25,7 +25,7 @@ class Listing(models.Model):
         null=True,
         validators=[
             MinValueValidator(1837),
-            MaxValueValidator(current_year)
+            MaxValueValidator(timezone.now().year)
         ])
     
     img_url = models.URLField (
@@ -62,9 +62,23 @@ class Listing(models.Model):
         )
     
     active = models.BooleanField(default=True)
+    timestamp = models.DateTimeField(default=timezone.now())
+
+    def current_price(self):
+        highest_bid = self.bids.order_by("-amount").first()
+        return highest_bid.amount if highest_bid else self.starting_bid
+    
+    def highest_bidder(self):
+        highest_bid = self.bids.order_by("-amount").first()
+        return highest_bid.bidder if highest_bid else None
+    
+    def bid_history(self):
+        return self.bids.order_by('-timestamp')[:5]
+
     
     def __str__(self):
         return self.title
+
 
 class Watchlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist_items")
@@ -75,3 +89,22 @@ class Watchlist(models.Model):
 
     def __str__(self):
         return f"{self.user.username} → {self.listing.title}"
+    
+
+class Bid(models.Model):
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
+    bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
+
+    amount = models.DecimalField (
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Bid",
+        validators=[
+            MinValueValidator(0.01),
+            MaxValueValidator(999.99)
+        ])
+
+    timestamp = models.DateTimeField(default=timezone.now())
+
+    def __str__(self):
+        return f"{self.amount} by {self.bidder} on {self.listing}"

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Listing
+from .models import Listing, Bid
 
 import datetime
 
@@ -22,3 +22,14 @@ class NewListingForm(forms.ModelForm):
         self.fields['starting_bid'].widget.attrs.update({'min': 0.01, 'max': 999.99})
         self.fields['year'].initial = current_year
         self.fields['year'].widget.attrs.update({'max': current_year, 'min': 1837})
+
+
+class NewBidForm(forms.ModelForm):
+    class Meta:
+        model = Bid
+        fields = ['amount']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    

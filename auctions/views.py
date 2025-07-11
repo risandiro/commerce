@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .models import User, Listing, Watchlist
-from .forms import NewListingForm
+from .forms import NewListingForm, NewBidForm
 
 
 def index(request):
@@ -91,10 +91,21 @@ def show_listing(request, listing_id):
     if request.user.is_authenticated:
         is_in_watchlist = Watchlist.objects.filter(user=request.user, listing=listing).exists()
 
+    form = NewBidForm() 
+
     return render(request, "auctions/show_listing.html", {
         "listing": listing,
-        "is_in_watchlist": is_in_watchlist
+        "is_in_watchlist": is_in_watchlist,
+        "form": form
     })
+
+@login_required
+def auction_close(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)    # get listing_id of the page
+    listing.active = False
+    listing.save()
+    return redirect("show_listing", listing_id=listing.id)
+
 
 @login_required
 def my_listings(request):
