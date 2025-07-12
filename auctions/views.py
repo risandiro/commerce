@@ -8,6 +8,8 @@ from django.urls import reverse
 from .models import User, Listing, Watchlist
 from .forms import NewListingForm, NewBidForm
 
+from decimal import Decimal
+
 
 def index(request):
     listings = Listing.objects.all()
@@ -82,7 +84,7 @@ def create_listing(request):
 
     return render(request, "auctions/create_listing.html", {
                 "form": form
-            })
+    })
 
 def show_listing(request, listing_id):
     listing = Listing.objects.get(id=listing_id)
@@ -112,14 +114,14 @@ def my_listings(request):
     queryset = Listing.objects.filter(creator=request.user)
     return render(request, "auctions/my_listings.html", {
                 "listings": queryset
-            })
+    })
 
 @login_required
 def watchlist(request):
     queryset = Listing.objects.filter(watchlisted_by__user=request.user)
     return render(request, "auctions/watchlist.html", {
                 "listings": queryset
-            })
+    })
 
 @login_required
 def toggle_watchlist(request, listing_id):
@@ -132,3 +134,43 @@ def toggle_watchlist(request, listing_id):
         Watchlist.objects.create(user=request.user, listing=listing)    # if not, create one
     
     return redirect('show_listing', listing_id=listing.id)
+
+
+@login_required
+def bid_order(request, listing_id):
+    if request.method == "POST":
+        listing = Listing.objects.get(id=listing_id)
+        amount = Decimal(request.POST["amount"])
+        form = NewBidForm(request.POST)
+
+        if form.is_valid():
+            if amount > listing.current_price():
+                bid = form.save(commit=False)
+                bid.listing = listing
+                bid.bidder = request.user
+                bid.amount = amount
+                bid.save()
+                return render(request, "auctions/show_listing.html", {
+                "listing": listing,
+                "form": NewBidForm(),
+                "message": "Your order has been placed."
+                 })
+
+            return render(request, "auctions/show_listing.html", {
+                "listing": listing,
+                "form": form,
+                "message": "Must be more than the current price."
+            })
+        
+        return render(request, "auctions/show_listing.html", {
+                "listing": listing,
+                "form": form,
+                "message": "Invalid parameters."
+            })
+    
+
+def user_profile(request, username):
+    user_profile = User.objects.get(username=username)
+    return render(request, "auctions/user_profile.html", {
+        "user_profile": user_profile
+    })

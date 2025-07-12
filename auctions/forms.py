@@ -8,7 +8,7 @@ current_year = datetime.datetime.now().year
 class NewListingForm(forms.ModelForm):
     class Meta:
         model = Listing
-        exclude = ['creator', 'active']
+        exclude = ['creator', 'active', 'timestamp']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -50,11 +50,12 @@
             <div class="col-md-5">
                 <p class="mb-1">Created at: {{ listing.timestamp }}</p>
                 <p class="mb-1">Starting price: ${{ listing.starting_bid }}</p>
-                <p class="mb-1">Listed by: <a href="google.com">{{ listing.creator }}</a></p>
+                <p class="mb-1">Listed by: <a href="{% url 'user_profile' listing.creator %}">{{ listing.creator }}</a></p>
             </div>
 
             <!-- Right: Bidding -->
             <div class="col-md-7" style="width: 50%;">
+                <!-- Bidding info-->
                 <p class="mb-1">
                     Status: 
                     {% if listing.active %}
@@ -65,14 +66,36 @@
                 </p>
                 {% if listing.active %}
                     <p class="mb-1">Current price: <strong>${{ listing.current_price }}</strong></p>
-                    <p class="mb-1">Highest bidder: {{ listing.highest_bidder}}</p>
+                    <p class="mb-1">Highest bidder: <a href="{% url 'user_profile' listing.highest_bidder %}">{{ listing.highest_bidder}}</a></p>
+
                     <br>
-                    <form>
-                        {{ form }}
-                        <button type="submit" class="btn btn-primary btn-sm" style="margin-top: -5px;">Place a bid</button>                    </form>
+
+                    <!-- Tooltip message -->
+                    {% if message %}
+                        <div id="alert-message" class="alert alert-warning small py-1">
+                            {{ message }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Bidding form  for authorized and unauthorized users-->
+                    {% if user.is_authenticated %}
+                        <form action="{% url 'bid_order' listing.id %}" method="POST">
+                            {% csrf_token %}
+                            {{ form }}
+                            <button type="submit" class="btn btn-primary btn-sm" style="margin-top: -5px;">Place a bid</button>                    
+                        </form>
+                    {% else %}
+                        <label for="fakefield">Bid:</label>
+                        <input type="number" name="fakefield" step="0.01" min="0" max="999.99" size="30"
+                            placeholder="0.00" style="width: 190px;">
+                        <button class="btn btn-primary btn-sm" style="margin-top: -5px;" data-bs-toggle="tooltip" 
+                            data-bs-placement="top" title="Must be logged in.">Place a bid</button>
+                    {% endif %}
+
                 {% else %}
+                    <!-- Closed listing additional info -->
                     <p class="mb-1">Hammer price: <strong>${{ listing.current_price }}</strong></p>
-                    <p class="mb-1">Winner of the auction: <a href="google.com">{{ listing.highest_bidder }}</a></p>
+                    <p class="mb-1">Winner of the auction: <a href="{% url 'user_profile' listing.highest_bidder %}">{{ listing.highest_bidder }}</a></p>
                     {% if listing.highest_bidder == user %} 
                         Congratulations! You are the winner of this auction!
                     {% endif %}
@@ -81,19 +104,33 @@
         </div>
     </div>
 
-    <div style="padding: 50px;">
-        <h4>Bid history:</h4>
-        {% for bid in listing.bid_history %}
-            <a href="google.com">{{ bid.bidder }}</a> made a bid at ${{ bid.amount }} at {{ bid.timestamp|timesince }} ago
-            <br>
-        {% endfor %}
+    <!-- Bid history -->
+    <div style="padding: 50px; margin-top: -50px">
+        <div class="row align-items-start mt-5">
+            <div class="col-md-5">
+                <h4>Bid history:</h4>
+                {% for bid in listing.bid_history %}
+                    <a href="{% url 'user_profile' bid.bidder %}">{{ bid.bidder }}</a> made a bid at ${{ bid.amount }} at {{ bid.timestamp|timesince }} ago
+                    <br>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-7">
+                <h4>Comments:</h4>
+                <p>Lorem ipsum Lorem</p>
+            </div>
+        </div>
     </div>
         
     <hr>        
 
+    <!-- Footer with buttons-->
     <div style="padding-left: 50px; padding-top: 25px;">
         {% if listing.active and listing.creator == user %}
             <a href="{% url 'auction_close' listing.id %}" class="btn btn-primary btn-sm">Close the auction</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <a href="google.com" class="btn btn-primary btn-sm">Add a comment</a>
         {% endif %}
     </div>
 

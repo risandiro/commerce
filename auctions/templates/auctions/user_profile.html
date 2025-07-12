@@ -1,0 +1,25 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <div style="padding-left: 50px">
+        <div class="row align-items-start mt-5">
+            <div class="col-md-4">
+                <h4>Profile information:</h4>
+                <br>
+                <p class="mb-1"><strong>Username:</strong> {{ user_profile.username }}</p>
+                <p class="mb-1"><strong>Email:</strong> {{ user_profile.email }}</p>
+                <p class="mb-1">Created at: {{ user_profile.date_joined }}</p>
+                <br>
+                <p class="mb-1"><strong>Status:</strong> {% if user_profile.is_active %} ✅ Active {% else %} ❌ Disabled {% endif %}</p>
+                <p class="mb-1">Last Login: {{ user_profile.last_login }}</p>
+            </div>
+
+            <div class="col-md-7" style="margin-top: 65px;">
+                <p class="mb-1"><strong>Account type:</strong> 
+                    {% if user_profile.is_superuser and user_profile.is_staff %} Administrator {% else %} User {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

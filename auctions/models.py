@@ -1,8 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-
-import datetime
 from django.utils import timezone
 
 
@@ -62,7 +60,7 @@ class Listing(models.Model):
         )
     
     active = models.BooleanField(default=True)
-    timestamp = models.DateTimeField(default=timezone.now())
+    timestamp = models.DateTimeField(default=timezone.now)
 
     def current_price(self):
         highest_bid = self.bids.order_by("-amount").first()
@@ -100,11 +98,21 @@ class Bid(models.Model):
         decimal_places=2,
         verbose_name="Bid",
         validators=[
-            MinValueValidator(0.01),
             MaxValueValidator(999.99)
         ])
 
-    timestamp = models.DateTimeField(default=timezone.now())
+    timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.amount} by {self.bidder} on {self.listing}"
+    
+
+class Comment(models.Model):
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    title = models.CharField(max_length=64, verbose_name="Title", default=None)
+    text = models.TextField(verbose_name="Comment")
+    timestamp = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.author}'s comment on {self.listing} with title: {self.title}"
