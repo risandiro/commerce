@@ -27,3 +27,23 @@ body {
 .watchlist-icon {
     font-size: 1.5rem;
 }
+
+.comment-section {
+    max-height: 18em; /* 3 lines if line-height is ~2em */
+    overflow: hidden;
+    position: relative;
+    display: block;
+}
+
+.comment-entry {
+    line-height: 1.5em;  /* adjust this as needed */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* show only 3 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Hide all comments after the 3rd one */
+#comment-section.collapsed .comment-entry:nth-child(n+4) {
+    display: none;

@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .models import User, Listing, Watchlist
-from .forms import NewListingForm, NewBidForm
+from .forms import NewListingForm, NewBidForm, NewCommentForm
 
 from decimal import Decimal
 
@@ -93,12 +93,12 @@ def show_listing(request, listing_id):
     if request.user.is_authenticated:
         is_in_watchlist = Watchlist.objects.filter(user=request.user, listing=listing).exists()
 
-    form = NewBidForm() 
+    bid_form = NewBidForm()
 
     return render(request, "auctions/show_listing.html", {
         "listing": listing,
         "is_in_watchlist": is_in_watchlist,
-        "form": form
+        "NewBidForm": bid_form
     })
 
 @login_required
@@ -151,9 +151,9 @@ def bid_order(request, listing_id):
                 bid.amount = amount
                 bid.save()
                 return render(request, "auctions/show_listing.html", {
-                "listing": listing,
-                "form": NewBidForm(),
-                "message": "Your order has been placed."
+                    "listing": listing,
+                    "form": NewBidForm(),
+                    "message": "Your order has been placed."
                  })
 
             return render(request, "auctions/show_listing.html", {
@@ -173,4 +173,44 @@ def user_profile(request, username):
     user_profile = User.objects.get(username=username)
     return render(request, "auctions/user_profile.html", {
         "user_profile": user_profile
+    })
+
+
+@login_required
+def add_comment(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)
+
+    if request.method == "POST":
+        title = request.POST["title"]
+        text = request.POST["text"]
+        form = NewCommentForm(request.POST)
+
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.listing = listing
+            comment.author = request.user
+            comment.title = title
+            comment.text = text
+            comment.save()
+            return render(request, "auctions/show_listing.html", {
+                "listing": listing
+            })
+        
+        return render(request, "auctions/add_comment.html", {
+            "listing": listing,
+            "NewCommentForm": form,
+            "message": "Invalid parameters."
+        })
+            
+
+    return render(request, "auctions/add_comment.html", {
+        "listing": listing,
+        "NewCommentForm": NewCommentForm()
+    })
+
+
+def all_comments(request, listing_id):
+    listing = Listing.objects.get(id=listing_id)
+    return render(request, "auctions/all_comments.html", { 
+        "listing": listing
     })

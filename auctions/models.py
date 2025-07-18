@@ -72,7 +72,12 @@ class Listing(models.Model):
     
     def bid_history(self):
         return self.bids.order_by('-timestamp')[:5]
+    
+    def comment_history(self):
+        return self.comments.order_by('-timestamp')[:5]
 
+    def comment_all(self):
+        return self.comments.order_by('-timestamp')
     
     def __str__(self):
         return self.title

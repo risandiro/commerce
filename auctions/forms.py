@@ -1,5 +1,5 @@
 from django import forms
-from .models import Listing, Bid
+from .models import Listing, Bid, Comment
 
 import datetime
 
@@ -33,3 +33,10 @@ class NewBidForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
     
+class NewCommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['title', 'text']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
