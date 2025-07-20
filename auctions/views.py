@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import User, Listing, Watchlist
+from .models import User, Listing, Watchlist, Category
 from .forms import NewListingForm, NewBidForm, NewCommentForm
 
 from decimal import Decimal
@@ -213,4 +213,18 @@ def all_comments(request, listing_id):
     listing = Listing.objects.get(id=listing_id)
     return render(request, "auctions/all_comments.html", { 
         "listing": listing
+    })
+
+
+def categories(request):
+    categories = Category.objects.all()
+    return render(request, "auctions/categories.html", {
+        "categories": categories
+    })
+
+
+def category_list(request, category_id):
+    category = Category.objects.get(id=category_id)
+    return render(request, "auctions/category_list.html", { 
+        "category": category,
     })
