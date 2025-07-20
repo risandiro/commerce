@@ -81,8 +81,12 @@
                     {% if user.is_authenticated %}
                         <form action="{% url 'bid_order' listing.id %}" method="POST">
                             {% csrf_token %}
-                            {{ NewBidForm }}
-                            <button type="submit" class="btn btn-primary btn-sm" style="margin-top: -5px;">Place a bid</button>                    
+                            {% if form %}
+                                {{ form }}
+                            {% else %}
+                                {{ NewBidForm }}
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary btn-sm" style="margin-top: -5px;">Place a bid</button>
                         </form>
                     {% else %}
                         <label for="fakefield">Bid:</label>
