@@ -1,6 +1,6 @@
 # Commerce
 
-**Live demo:** _https://www.risandiro.pythonanywhere.com_  
+**Live demo:** _https://risandiro.pythonanywhere.com/_
 **Source:** _https://github.com/risandiro/commerce_
 
 ---
